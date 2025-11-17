@@ -1,8 +1,8 @@
 <template>
   <div class="p-6">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold mb-2">Expense Tracker Dashboard</h1>
-      <p class="text-gray-600">Track and analyze your expenses</p>
+      <h1 class="text-3xl font-bold mb-2 dark:text-white">Expense Tracker Dashboard</h1>
+      <p class="text-gray-600 dark:text-gray-400">Track and analyze your expenses</p>
     </div>
 
     <!-- Date Range Filter -->
@@ -30,7 +30,7 @@
         <template #content>
           <div class="text-center">
             <div class="text-2xl font-bold text-blue-600">${{ totalExpenses.toFixed(2) }}</div>
-            <div class="text-gray-600 mt-2">Total Expenses</div>
+            <div class="text-gray-600 dark:text-gray-400 mt-2">Total Expenses</div>
           </div>
         </template>
       </Card>
@@ -38,7 +38,7 @@
         <template #content>
           <div class="text-center">
             <div class="text-2xl font-bold text-green-600">{{ expensesByCategory.length }}</div>
-            <div class="text-gray-600 mt-2">Categories</div>
+            <div class="text-gray-600 dark:text-gray-400 mt-2">Categories</div>
           </div>
         </template>
       </Card>
@@ -46,7 +46,7 @@
         <template #content>
           <div class="text-center">
             <div class="text-2xl font-bold text-purple-600">{{ expenses.length }}</div>
-            <div class="text-gray-600 mt-2">Transactions</div>
+            <div class="text-gray-600 dark:text-gray-400 mt-2">Transactions</div>
           </div>
         </template>
       </Card>
