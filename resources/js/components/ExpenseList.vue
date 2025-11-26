@@ -2,8 +2,8 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-3xl font-bold mb-2">Expenses</h1>
-        <p class="text-gray-600">Manage your expense transactions</p>
+        <h1 class="text-3xl font-bold mb-2 dark:text-white">Expenses</h1>
+        <p class="text-gray-600 dark:text-gray-400">Manage your expense transactions</p>
       </div>
       <Button label="Add Expense" icon="pi pi-plus" @click="showAddDialog = true" />
     </div>
