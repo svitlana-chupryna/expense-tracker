@@ -1,8 +1,8 @@
 <template>
   <div class="p-6">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold mb-2">Expense Tracker Dashboard</h1>
-      <p class="text-gray-600">Track and analyze your expenses</p>
+      <h1 class="text-3xl font-bold mb-2">{{ t('dashboard.title') }}</h1>
+      <p class="text-gray-600">{{ t('dashboard.subtitle') }}</p>
     </div>
 
     <!-- Date Range Filter -->
@@ -10,15 +10,15 @@
       <template #content>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-2">Start Date</label>
+            <label class="block text-sm font-medium mb-2">{{ t('common.startDate') }}</label>
             <Calendar v-model="filters.startDate" dateFormat="yy-mm-dd" showIcon />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-2">End Date</label>
+            <label class="block text-sm font-medium mb-2">{{ t('common.endDate') }}</label>
             <Calendar v-model="filters.endDate" dateFormat="yy-mm-dd" showIcon />
           </div>
           <div class="flex items-end">
-            <Button label="Apply Filters" @click="loadDashboard" icon="pi pi-filter" class="w-full" />
+            <Button :label="t('common.filter')" @click="loadDashboard" icon="pi pi-filter" class="w-full" />
           </div>
         </div>
       </template>
@@ -30,7 +30,7 @@
         <template #content>
           <div class="text-center">
             <div class="text-2xl font-bold text-blue-600">${{ totalExpenses.toFixed(2) }}</div>
-            <div class="text-gray-600 mt-2">Total Expenses</div>
+            <div class="text-gray-600 mt-2">{{ t('dashboard.totalExpenses') }}</div>
           </div>
         </template>
       </Card>
@@ -38,7 +38,7 @@
         <template #content>
           <div class="text-center">
             <div class="text-2xl font-bold text-green-600">{{ expensesByCategory.length }}</div>
-            <div class="text-gray-600 mt-2">Categories</div>
+            <div class="text-gray-600 mt-2">{{ t('dashboard.categories') }}</div>
           </div>
         </template>
       </Card>
@@ -46,7 +46,7 @@
         <template #content>
           <div class="text-center">
             <div class="text-2xl font-bold text-purple-600">{{ expenses.length }}</div>
-            <div class="text-gray-600 mt-2">Transactions</div>
+            <div class="text-gray-600 mt-2">{{ t('dashboard.transactions') }}</div>
           </div>
         </template>
       </Card>
@@ -54,7 +54,7 @@
 
     <!-- Chart -->
     <Card class="mb-6">
-      <template #title>Expenses by Category</template>
+      <template #title>{{ t('dashboard.expensesByCategory') }}</template>
       <template #content>
         <Chart type="pie" :data="chartData" :options="chartOptions" />
       </template>
@@ -62,7 +62,7 @@
 
     <!-- Recent Expenses -->
     <Card>
-      <template #title>Recent Expenses</template>
+      <template #title>{{ t('dashboard.recentExpenses') }}</template>
       <template #content>
         <DataTable :value="recentExpenses" :paginator="true" :rows="10" class="p-datatable-sm">
           <Column field="name" header="Name" sortable></Column>
@@ -85,6 +85,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import Card from 'primevue/card';
 import Calendar from 'primevue/calendar';
@@ -92,6 +93,8 @@ import Button from 'primevue/button';
 import Chart from 'primevue/chart';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+
+const { t } = useI18n();
 
 const filters = ref({
   startDate: null,

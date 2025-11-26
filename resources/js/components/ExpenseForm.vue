@@ -1,45 +1,51 @@
 <template>
   <div class="p-fluid">
     <div class="mb-4">
-      <label for="name" class="block text-sm font-medium mb-2">Name *</label>
-      <InputText id="name" v-model="form.name" placeholder="Enter expense name" :class="{ 'p-invalid': errors.name }" />
+      <label for="name" class="block text-sm font-medium mb-2">{{ t('common.name') }} *</label>
+      <InputText
+        id="name"
+        v-model="form.name"
+        :placeholder="t('form.namePlaceholder')"
+        :class="{ 'p-invalid': errors.name }"
+      />
       <small v-if="errors.name" class="p-error">{{ errors.name[0] }}</small>
     </div>
 
     <div class="mb-4">
-      <label for="amount" class="block text-sm font-medium mb-2">Amount *</label>
+      <label for="amount" class="block text-sm font-medium mb-2">{{ t('common.amount') }} *</label>
       <InputNumber id="amount" v-model="form.amount" mode="decimal" :min="0" :maxFractionDigits="2" placeholder="0.00" :class="{ 'p-invalid': errors.amount }" />
       <small v-if="errors.amount" class="p-error">{{ errors.amount[0] }}</small>
     </div>
 
     <div class="mb-4">
-      <label for="category" class="block text-sm font-medium mb-2">Category *</label>
+      <label for="category" class="block text-sm font-medium mb-2">{{ t('common.category') }} *</label>
       <AutoComplete
         id="category"
         v-model="form.category"
         :suggestions="categorySuggestions"
         @complete="searchCategories"
-        placeholder="Enter category"
+        :placeholder="t('form.categoryPlaceholder')"
         :class="{ 'p-invalid': errors.category }"
       />
       <small v-if="errors.category" class="p-error">{{ errors.category[0] }}</small>
     </div>
 
     <div class="mb-4">
-      <label for="date" class="block text-sm font-medium mb-2">Date *</label>
+      <label for="date" class="block text-sm font-medium mb-2">{{ t('common.date') }} *</label>
       <Calendar id="date" v-model="form.date" dateFormat="yy-mm-dd" showIcon :class="{ 'p-invalid': errors.date }" />
       <small v-if="errors.date" class="p-error">{{ errors.date[0] }}</small>
     </div>
 
     <div class="flex justify-end gap-2 mt-4">
-      <Button label="Cancel" @click="$emit('cancel')" severity="secondary" />
-      <Button label="Save" @click="save" :loading="saving" />
+      <Button :label="t('common.cancel')" @click="$emit('cancel')" severity="secondary" />
+      <Button :label="t('common.save')" @click="save" :loading="saving" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import InputText from 'primevue/inputtext';
@@ -47,6 +53,8 @@ import InputNumber from 'primevue/inputnumber';
 import Calendar from 'primevue/calendar';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
+
+const { t } = useI18n();
 
 const props = defineProps({
   expense: {
@@ -101,10 +109,10 @@ const save = async () => {
 
     if (props.expense && props.expense.id) {
       await axios.put(`/api/expenses/${props.expense.id}`, data);
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Expense updated successfully', life: 3000 });
+      toast.add({ severity: 'success', summary: t('notifications.expenseUpdated'), detail: '', life: 3000 });
     } else {
       await axios.post('/api/expenses', data);
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Expense created successfully', life: 3000 });
+      toast.add({ severity: 'success', summary: t('notifications.expenseCreated'), detail: '', life: 3000 });
     }
 
     emit('saved');
@@ -112,7 +120,7 @@ const save = async () => {
     if (error.response && error.response.status === 422) {
       errors.value = error.response.data.errors || {};
     } else {
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save expense', life: 3000 });
+      toast.add({ severity: 'error', summary: t('notifications.saveExpenseError'), detail: '', life: 3000 });
     }
   } finally {
     saving.value = false;
