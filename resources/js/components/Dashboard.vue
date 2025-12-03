@@ -56,7 +56,10 @@
     <Card class="mb-6">
       <template #title>Expenses by Category</template>
       <template #content>
-        <Chart type="pie" :data="chartData" :options="chartOptions" />
+        <div v-if="expensesByCategory.length === 0" class="text-center py-8 text-gray-500">
+          No expenses found for the selected date range.
+        </div>
+        <Chart v-else type="pie" :data="chartData" :options="chartOptions" />
       </template>
     </Card>
 
@@ -93,8 +96,14 @@ import Chart from 'primevue/chart';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
+// Get first day of current month
+const getFirstDayOfCurrentMonth = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+};
+
 const filters = ref({
-  startDate: null,
+  startDate: getFirstDayOfCurrentMonth(),
   endDate: null,
 });
 
@@ -144,8 +153,12 @@ const loadDashboard = async () => {
 
     // Load dashboard stats
     const statsResponse = await axios.get('/api/expenses/dashboard/stats', { params });
+    console.log('Dashboard stats response:', statsResponse.data);
+    
     expensesByCategory.value = statsResponse.data.byCategory || [];
     totalExpenses.value = parseFloat(statsResponse.data.total || 0);
+    
+    console.log('Expenses by category:', expensesByCategory.value);
 
     // Load recent expenses
     const expensesResponse = await axios.get('/api/expenses', { params });
@@ -153,6 +166,9 @@ const loadDashboard = async () => {
     recentExpenses.value = expensesResponse.data.slice(0, 10);
   } catch (error) {
     console.error('Error loading dashboard:', error);
+    if (error.response) {
+      console.error('Error response:', error.response.data);
+    }
   }
 };
 

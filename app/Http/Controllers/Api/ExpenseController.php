@@ -101,35 +101,58 @@ class ExpenseController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $query = Expense::query();
-
-        // Filter by date range
-        if ($request->has('start_date')) {
-            $query->where('date', '>=', $request->start_date);
-        }
-        if ($request->has('end_date')) {
-            $query->where('date', '<=', $request->end_date);
-        }
+        // Build base query with filters
+        $baseQuery = function() use ($request) {
+            $query = Expense::query();
+            
+            // Filter by date range
+            if ($request->has('start_date') && $request->start_date) {
+                $query->where('date', '>=', $request->start_date);
+            }
+            if ($request->has('end_date') && $request->end_date) {
+                $query->where('date', '<=', $request->end_date);
+            }
+            
+            return $query;
+        };
 
         // Get expenses by category for chart
-        $byCategory = $query->clone()
+        $byCategory = $baseQuery()
             ->selectRaw('category, SUM(amount) as total')
             ->groupBy('category')
-            ->get();
+            ->orderBy('category')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'category' => $item->category,
+                    'total' => (float) $item->total,
+                ];
+            });
 
         // Get total expenses
-        $total = $query->clone()->sum('amount');
+        $total = $baseQuery()->sum('amount');
 
-        // Get expenses by month for trend
-        $byMonth = $query->clone()
-            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+        // Get expenses by month for trend (database-agnostic approach)
+        $driver = config('database.default');
+        $dateFormat = $driver === 'sqlite' 
+            ? "strftime('%Y-%m', date)" 
+            : "DATE_FORMAT(date, '%Y-%m')";
+        
+        $byMonth = $baseQuery()
+            ->selectRaw("{$dateFormat} as month, SUM(amount) as total")
+            ->groupBy(\DB::raw($dateFormat))
+            ->orderBy(\DB::raw($dateFormat))
+            ->get()
+            ->map(function($item) {
+                return [
+                    'month' => $item->month,
+                    'total' => (float) $item->total,
+                ];
+            });
 
         return response()->json([
             'byCategory' => $byCategory,
-            'total' => $total,
+            'total' => (float) $total,
             'byMonth' => $byMonth,
         ]);
     }
